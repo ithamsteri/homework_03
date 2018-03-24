@@ -20,7 +20,7 @@ unsigned long fib(unsigned long n) {
 }
 
 using chunk_allocator = ChunkAllocator<std::pair<const int, int>>;
-using chunk_map = std::map<int, int, std::less<>, chunk_allocator>;
+using chunk_map = std::map<int, int, std::less<int>, chunk_allocator>;
 using simple_map = std::map<int, int>;
 
 int main(int, char *[]) {
