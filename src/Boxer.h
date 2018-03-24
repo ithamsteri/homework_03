@@ -5,7 +5,6 @@
 
 #pragma once
 
-#include <iostream>
 #include <iterator>
 #include <memory>
 
@@ -109,8 +108,10 @@ public:
   Boxer() = default;
   Boxer(Alloc &a) : _allocator(a) {}
   ~Boxer() {
-    for (Node *ptr = _first_node; ptr != nullptr; ptr = ptr->next)
+    for (Node *ptr = _first_node; ptr != nullptr; ptr = ptr->next) {
+      traits::destroy(_allocator, ptr);
       traits::deallocate(_allocator, ptr, 1);
+    }
   }
 
   // Get iterators
@@ -122,8 +123,8 @@ public:
   // Add elements to front
   void push_front(const T &value) {
     Node *ptr = traits::allocate(_allocator, 1);
+    traits::construct(_allocator, &(ptr->value), value);
     ptr->next = _first_node;
-    ptr->value = value;
     _first_node = ptr;
     _size++;
   }
@@ -132,6 +133,7 @@ public:
   void pop_front() {
     auto front = _first_node;
     _first_node = _first_node->next;
+    traits::destroy(_allocator, front);
     traits::deallocate(_allocator, front, 1);
   }
 

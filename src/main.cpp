@@ -2,15 +2,15 @@
 // File: main.cpp
 //
 
+// Overload ::operator new and ::operator delete
+// #include "Malloc.h"
+
 #include "Boxer.h"
 #include "ChunkAllocator.h"
-#include <cassert>
 #include <iostream>
 #include <map>
-#include <vector>
 
 unsigned long fib(unsigned long n) {
-  assert(n != 0); // Fibonacci number don't calculate for zero
   unsigned long a = 0, b = 1;
   while (n-- > 1) {
     unsigned long t = a;
