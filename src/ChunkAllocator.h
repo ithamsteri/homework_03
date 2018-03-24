@@ -20,17 +20,15 @@ public:
   // Конструктор принимает значение размера в байтах!
   ChunkMemoryManager(size_t n) : _size{n} {}
   ~ChunkMemoryManager() {
-    for (pointer ptr : _chunks) {
+    for (pointer ptr : _chunks)
       free(ptr);
-    }
   }
 
   // Выделение в chunk'е n байт памяти
   void *do_allocate(size_t n) {
     // Первое выделение памяти.
-    if (_currentChunk == nullptr) {
+    if (_currentChunk == nullptr)
       addChunk(_size);
-    }
     // Проверяем, что хватит ли памяти в chunk для нового объекта.
     if (_offset + n > _size)
       addChunk(_size * 2);
@@ -43,9 +41,8 @@ public:
   // Удаление памяти в текущем chunk'е происходит по типу стека.
   void do_deallocate(void *ptr, size_t size) {
     auto ptr_back = _currentChunk + _offset - size;
-    if (ptr == ptr_back) {
+    if (ptr == ptr_back)
       _offset -= size;
-    }
   }
 
   size_t size() const { return _size; }
