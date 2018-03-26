@@ -5,58 +5,47 @@
 // Overload ::operator new and ::operator delete
 // #include "Malloc.h"
 
-#include "Boxer.h"
-#include "ChunkAllocator.h"
+#include "ChunkPool.h"
+#include "ForwardList.h"
 #include <iostream>
 #include <map>
 
-unsigned long fib(unsigned long n) {
-  unsigned long a = 0, b = 1;
-  while (n-- > 1) {
-    unsigned long t = a;
-    a = b;
-    b += t;
-  }
-  return b;
+const static int container_size = 10;
+
+constexpr unsigned factorial(unsigned n) {
+  return (n == 0) ? 1 : n * factorial(n - 1);
 }
 
-using chunk_allocator = ChunkAllocator<std::pair<const int, int>>;
-using chunk_map = std::map<int, int, std::less<int>, chunk_allocator>;
+using chunk_allocator_10 =
+    ChunkPool<container_size>::Allocator<std::pair<const int, int>>;
+using chunk_map_10 = std::map<int, int, std::less<int>, chunk_allocator_10>;
 using simple_map = std::map<int, int>;
 
 int main(int, char *[]) {
-  // Создайте экземпляр std::map и заполните 10 значениями.
+  // Section 01: std::map and allocators
   simple_map smap;
-  for (unsigned i = 1; i <= 10; ++i) {
-    smap[i] = fib(i);
-  }
+  for (int i = 0; i < container_size; ++i)
+    smap[i] = factorial(i);
 
-  // Создайте std::map и ограничите его 10 элементами.
-  // Заполните значениями.
-  chunk_allocator alloc(10);
-  chunk_map cmap(alloc);
-  for (unsigned i = 1; i <= 10; ++i) {
-    cmap[i] = fib(i);
-  }
-  // Вывод всех значений из контейнера.
-  for (unsigned i = 1; i <= 10; ++i) {
-    std::cout << i << ' ' << cmap[i] << '\n';
-  }
+  chunk_map_10 cmap;
+  for (int i = 0; i < container_size; ++i)
+    cmap[i] = factorial(i);
 
-  // Заполнение своего контейнера числами от 0 до 9
-  Boxer<int> boxer;
-  for (unsigned i = 0; i < 10; ++i)
-    boxer.push_front(i);
+  for (const auto p : cmap)
+    std::cout << p.first << ' ' << p.second << std::endl;
 
-  // Заполнение своего контейнера со своим аллокатором от 0 до 9
-  ChunkAllocator<int> boxer_allocator(10);
-  Boxer<int, ChunkAllocator<int>> chunk_boxer(boxer_allocator);
-  for (unsigned i = 0; i < 10; ++i)
-    chunk_boxer.push_front(i);
+  // Section 02: ForwardList and allocators
+  ForwardList<int> slist;
+  for (int i = 0; i < container_size; ++i)
+    slist.push_front(i);
 
-  // Вывод значений из своего контейнера со своим аллокатором.
-  for (const auto n : chunk_boxer) {
+  ForwardList<int, ChunkPool<container_size>::Allocator<int>> flist;
+  for (int i = 0; i < container_size; ++i)
+    flist.push_front(i);
+
+  for (const auto n : flist) {
     std::cout << n << std::endl;
-  };
+  }
+
   return 0;
 }
