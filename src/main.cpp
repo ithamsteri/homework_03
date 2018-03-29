@@ -3,7 +3,7 @@
 //
 
 // Overload ::operator new and ::operator delete
-// #include "Malloc.h"
+//#include "Malloc.h"
 
 #include "ChunkPool.h"
 #include "ForwardList.h"
@@ -17,7 +17,7 @@ constexpr unsigned factorial(unsigned n) {
 }
 
 using chunk_allocator_10 =
-    ChunkPool<container_size>::Allocator<std::pair<const int, int>>;
+    ChunkAllocator<std::pair<const int, int>, container_size>;
 using chunk_map_10 = std::map<int, int, std::less<int>, chunk_allocator_10>;
 using simple_map = std::map<int, int>;
 
@@ -30,7 +30,6 @@ int main(int, char *[]) {
   chunk_map_10 cmap;
   for (int i = 0; i < container_size; ++i)
     cmap[i] = factorial(i);
-
   for (const auto p : cmap)
     std::cout << p.first << ' ' << p.second << std::endl;
 
@@ -39,13 +38,12 @@ int main(int, char *[]) {
   for (int i = 0; i < container_size; ++i)
     slist.push_front(i);
 
-  ForwardList<int, ChunkPool<container_size>::Allocator<int>> flist;
+  ForwardList<int, ChunkAllocator<int, 10>> flist;
   for (int i = 0; i < container_size; ++i)
     flist.push_front(i);
 
   for (const auto n : flist) {
     std::cout << n << std::endl;
   }
-
   return 0;
 }

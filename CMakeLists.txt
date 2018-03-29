@@ -22,6 +22,9 @@ set_target_properties(allocator PROPERTIES
     CXX_STANDARD_REQUIRED ON
 )
 
+# Need for YCM autocomplete in Vim editor
+set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
+
 install(TARGETS allocator RUNTIME DESTINATION bin)
 
 set(CPACK_GENERATOR DEB)
@@ -31,4 +34,8 @@ set(CPACK_PACKAGE_VERSION_PATCH "${PROJECT_VERSION_PATCH}")
 set(CPACK_PACKAGE_CONTACT alex.aspirine@gmail.com)
 
 include(CPack)
+
+enable_testing()
+
+add_subdirectory(tests)
 
