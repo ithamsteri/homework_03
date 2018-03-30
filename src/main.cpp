@@ -7,6 +7,7 @@
 
 #include "ChunkAllocator.h"
 #include "ForwardList.h"
+#include <algorithm>
 #include <iostream>
 #include <map>
 
@@ -30,8 +31,10 @@ int main(int, char *[]) {
   chunk_map_10 cmap;
   for (int i = 0; i < container_size; ++i)
     cmap[i] = factorial(i);
-  for (const auto p : cmap)
+
+  std::for_each(cmap.begin(), cmap.end(), [](const auto &p) {
     std::cout << p.first << ' ' << p.second << std::endl;
+  });
 
   // Section 02: ForwardList and allocators
   ForwardList<int> slist;
@@ -42,8 +45,8 @@ int main(int, char *[]) {
   for (int i = 0; i < container_size; ++i)
     flist.push_front(i);
 
-  for (const auto n : flist) {
-    std::cout << n << std::endl;
-  }
+  std::for_each(flist.begin(), flist.end(),
+                [](const auto &n) { std::cout << n << std::endl; });
+
   return 0;
 }
