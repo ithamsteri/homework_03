@@ -13,12 +13,26 @@
 template <typename T, size_t Size> struct ChunkAllocator {
 private:
   using uchar = unsigned char;
-  struct NavigationBlock {
-    std::unique_ptr<uchar> prev;
-  };
-  using block_type = NavigationBlock;
+  using uchar_ptr = uchar *;
+
   constexpr static size_t firstElement =
-      (sizeof(block_type) + alignof(T) - 1) / alignof(T) * alignof(T);
+      (sizeof(uchar_ptr) + alignof(T) - 1) / alignof(T) * alignof(T);
+
+  class Deleter {
+  public:
+    void operator()(uchar_ptr ptr) {
+      auto p = reinterpret_cast<uchar_ptr *>(ptr);
+      while (p != nullptr) {
+        auto prev = *p;
+        ::operator delete(p);
+        p = reinterpret_cast<uchar_ptr *>(prev);
+      }
+    }
+  };
+
+  std::unique_ptr<uchar, Deleter> _currentChunk;
+  size_t _offset;
+  size_t _size;
 
 public:
   using value_type = T;
@@ -30,18 +44,6 @@ public:
   };
 
   ChunkAllocator() : _currentChunk{nullptr}, _offset{0}, _size{Size} {}
-
-  template <typename U>
-  ChunkAllocator(const ChunkAllocator<U, Size> &rhs) : _currentChunk{nullptr} {}
-
-  ~ChunkAllocator() {
-    while (_currentChunk != nullptr) {
-      std::unique_ptr<uchar> nextChunk(
-          std::move(reinterpret_cast<block_type *>(_currentChunk.get())->prev));
-      _currentChunk.release();
-      _currentChunk = std::move(nextChunk);
-    }
-  }
 
   pointer allocate(size_type n) {
     if (_currentChunk == nullptr)
@@ -64,15 +66,12 @@ public:
   }
 
 private:
-  std::unique_ptr<uchar> _currentChunk;
-  size_t _offset;
-  size_t _size;
-
   void addChunk(size_type n) {
     std::unique_ptr<uchar> oldChunk(_currentChunk.get());
-    _currentChunk.reset(
-        static_cast<uchar *>(::operator new(firstElement + sizeof(T) * n)));
-    new (_currentChunk.get()) block_type{std::move(oldChunk)};
+    _currentChunk.release(); // release old pointer without delete!
+    _currentChunk.reset(reinterpret_cast<uchar_ptr>(
+        ::operator new(firstElement + sizeof(T) * n)));
+    new (_currentChunk.get()) uchar_ptr{oldChunk.get()};
     _offset = firstElement;
   }
 };
