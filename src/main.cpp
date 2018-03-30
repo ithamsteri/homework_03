@@ -38,7 +38,7 @@ int main(int, char *[]) {
   for (int i = 0; i < container_size; ++i)
     slist.push_front(i);
 
-  ForwardList<int, ChunkAllocator<int, 10>> flist;
+  ForwardList<int, ChunkAllocator<int, container_size>> flist;
   for (int i = 0; i < container_size; ++i)
     flist.push_front(i);
 

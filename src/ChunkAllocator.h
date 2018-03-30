@@ -8,7 +8,6 @@
 
 #include <cstddef>
 #include <forward_list>
-#include <iostream>
 #include <memory>
 
 template <typename T, size_t Size> class ChunkAllocator {
@@ -67,11 +66,10 @@ public:
 
 private:
   void addChunk(size_type n) {
-    std::unique_ptr<uchar> oldChunk(_currentChunk.get());
-    _currentChunk.release(); // release old pointer without delete!
+    std::unique_ptr<uchar> oldChunk(_currentChunk.release());
     _currentChunk.reset(reinterpret_cast<uchar_ptr>(
         ::operator new(firstElement + sizeof(T) * n)));
-    new (_currentChunk.get()) uchar_ptr{oldChunk.get()};
+    new (_currentChunk.get()) uchar_ptr{oldChunk.release()};
     _offset = firstElement;
   }
 };
