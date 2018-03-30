@@ -5,7 +5,7 @@
 // Overload ::operator new and ::operator delete
 //#include "Malloc.h"
 
-#include "ChunkPool.h"
+#include "ChunkAllocator.h"
 #include "ForwardList.h"
 #include <iostream>
 #include <map>

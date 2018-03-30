@@ -18,14 +18,14 @@
 #include <limits>
 #include <memory>
 
-template <typename T, typename Alloc = std::allocator<T>> class ForwardList {
-
+template <typename T, typename Alloc = std::allocator<T>>
+class ForwardList {
   struct Node {
     T value;
     Node *next;
   };
 
-public:
+ public:
   class Iterator;
   class ConstIterator;
 
@@ -38,7 +38,7 @@ public:
       typename std::iterator_traits<iterator>::difference_type;
   using size_type = std::size_t;
 
-private:
+ private:
   // Используем аллокатор не для типа T, а для типа узла Node.
   using allocator_type =
       typename std::allocator_traits<Alloc>::template rebind_alloc<Node>;
@@ -52,11 +52,11 @@ private:
   // Список хранит две ссылки на "голову" и "хвост" списка.
   // Чтение списка происходит с "хвоста", а "голова" нужна для
   // добовления нового узла в списке.
-  Node *_head{nullptr}; // "голова"
-  Node *_tail{nullptr}; // "хвост"
-  size_type _size{0};   // количество узлов в списке
+  Node *_head{nullptr};  // "голова"
+  Node *_tail{nullptr};  // "хвост"
+  size_type _size{0};    // количество узлов в списке
 
-public:
+ public:
   ForwardList() : _allocator(allocator_type{}) {}
 
   // Процесс уничтожения списка происходит с "хвоста". Постепенно проходя
@@ -72,34 +72,19 @@ public:
     }
   }
 
-  // Получение количества элементов в списке.
   size_type size() const noexcept { return _size; }
-
-  // Получение максимально возможного количества хранения элементов
-  // в контейнере. Ограничено лишь размером типа size_type.
-  size_type max_size() const noexcept {
-    return std::numeric_limits<size_type>::max();
-  }
-
-  // Проверка на отсутствие элементов в списке.
   bool empty() const noexcept { return _size == 0; }
 
-  // Получение итераторов начала списка и конца
-  iterator begin() { return Iterator(_tail); }
-  iterator end() { return Iterator(nullptr); }
+  iterator begin() { return Iterator{_tail}; }
+  iterator end() { return Iterator{nullptr}; }
 
-  // Добавление элемента в "голову" списка.
   void push_front(const T &value) {
-    // Запрашиваем выделение памяти для одного узла
     Node *node = traits::allocate(_allocator, 1);
-    // просим аллокатор сконструировать элемент
     traits::construct(_allocator, &(node->value), value);
     node->next = nullptr;
 
-    if (_tail == nullptr)
-      _tail = node;
-    if (_head != nullptr)
-      _head->next = node;
+    if (_tail == nullptr) _tail = node;
+    if (_head != nullptr) _head->next = node;
 
     _head = node;
     _size++;
@@ -108,10 +93,12 @@ public:
 
 // Реализация концепта итератора в C++
 // http://en.cppreference.com/w/cpp/concept/Iterator
-template <typename T, typename Alloc> class ForwardList<T, Alloc>::Iterator {
-  Node *_node;
+template <typename T, typename Alloc>
+class ForwardList<T, Alloc>::Iterator {
+  using node_type = ForwardList<T, Alloc>::Node;
+  node_type *_node;
 
-public:
+ public:
   // Типы для iterator_traits
   using value_type = T;
   using pointer = T *;
@@ -120,7 +107,7 @@ public:
   using iterator_category = std::input_iterator_tag;
 
   // C++ concepts: CopyConstructible
-  Iterator(Node *node) : _node{node} {}
+  Iterator(node_type *node) : _node{node} {}
   Iterator(const Iterator &rhs) : _node{rhs._node} {}
   // C++ concepts: CopyAssignable
   Iterator &operator=(const Iterator &rhs) {
@@ -136,7 +123,7 @@ public:
   reference operator*() const { return _node->value; }
   pointer operator->() const { return &(_node->value); }
 
-  iterator &operator++() {
+  ForwardList<T, Alloc>::iterator &operator++() {
     _node = _node->next;
     return *this;
   }
@@ -145,16 +132,17 @@ public:
 
 template <typename T, typename Alloc>
 class ForwardList<T, Alloc>::ConstIterator {
-  Node *_node;
+  using node_type = ForwardList<T, Alloc>::Node;
+  node_type *_node;
 
-public:
+ public:
   using value_type = T;
   using pointer = const T *;
   using reference = const T &;
   using difference_type = ptrdiff_t;
   using iterator_category = std::input_iterator_tag;
 
-  ConstIterator(Node *node) : _node{node} {}
+  ConstIterator(node_type *node) : _node{node} {}
   ConstIterator(const ConstIterator &rhs) : _node{rhs._node} {}
   ConstIterator &operator=(const ConstIterator &rhs) {
     _node = rhs._node;
@@ -167,7 +155,7 @@ public:
   reference operator*() const { return _node->value; }
   pointer operator->() const { return &(_node->value); }
 
-  iterator &operator++() {
+  ForwardList<T, Alloc>::iterator &operator++() {
     _node = _node->next;
     return *this;
   }

@@ -14,7 +14,10 @@ set(SOURCE_PATH "${PROJECT_SOURCE_DIR}/src")
 
 # make executable file for application
 add_executable(allocator
-    ${SOURCE_PATH}/main.cpp
+        ${SOURCE_PATH}/main.cpp
+        ${SOURCE_PATH}/ChunkAllocator.h
+        ${SOURCE_PATH}/ForwardList.h
+        ${SOURCE_PATH}/Malloc.h
 )
 
 set_target_properties(allocator PROPERTIES

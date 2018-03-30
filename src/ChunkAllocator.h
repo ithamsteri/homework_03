@@ -10,7 +10,7 @@
 #include <iostream>
 #include <memory>
 
-template <typename T, int Size> struct ChunkAllocator {
+template <typename T, size_t Size> struct ChunkAllocator {
 private:
   using uchar_ptr = unsigned char *;
   struct NavigationBlock {
@@ -59,8 +59,8 @@ public:
 
 private:
   uchar_ptr _currentChunk;
-  size_t _offset; // смещение от начала chunk'а в байтах
-  size_t _size; // раземер текущего chunk'а в кол-ве объектов
+  size_t _offset;
+  size_t _size;
 
   void addChunk(size_type n) {
     auto oldChunk = _currentChunk;
