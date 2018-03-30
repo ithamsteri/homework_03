@@ -1,9 +1,10 @@
 //
-// File: ChunkPool.h
+// File: ChunkAllocator.h
 // Desc: Chunk memory pool with allocator
 //
 
-#pragma once
+#ifndef CHUNK_ALLOCATOR_H
+#define CHUNK_ALLOCATOR_H
 
 #include <cstddef>
 #include <forward_list>
@@ -75,3 +76,5 @@ private:
     _offset = firstElement;
   }
 };
+
+#endif // CHUNK_ALLOCATOR_H

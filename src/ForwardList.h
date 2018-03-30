@@ -12,7 +12,8 @@
 // NOTE: Реализация SequenceContainer не выполнена полностью в угоду простоты.
 //
 
-#pragma once
+#ifndef FORWARD_LIST_H
+#define FORWARD_LIST_H
 
 #include <iterator>
 #include <limits>
@@ -161,3 +162,5 @@ public:
   }
   void operator++(int) { *this ++; }
 };
+
+#endif // FORWARD_LIST_H

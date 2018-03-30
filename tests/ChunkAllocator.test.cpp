@@ -1,5 +1,5 @@
 //
-// File: allocator.test.cpp
+// File: ChunkAllocator.test.cpp
 //
 
 #define BOOST_TEST_MODULE AllocatorTest
