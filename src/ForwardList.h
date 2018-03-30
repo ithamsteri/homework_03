@@ -18,14 +18,13 @@
 #include <limits>
 #include <memory>
 
-template <typename T, typename Alloc = std::allocator<T>>
-class ForwardList {
+template <typename T, typename Alloc = std::allocator<T>> class ForwardList {
   struct Node {
     T value;
     Node *next;
   };
 
- public:
+public:
   class Iterator;
   class ConstIterator;
 
@@ -38,7 +37,7 @@ class ForwardList {
       typename std::iterator_traits<iterator>::difference_type;
   using size_type = std::size_t;
 
- private:
+private:
   // Используем аллокатор не для типа T, а для типа узла Node.
   using allocator_type =
       typename std::allocator_traits<Alloc>::template rebind_alloc<Node>;
@@ -52,12 +51,12 @@ class ForwardList {
   // Список хранит две ссылки на "голову" и "хвост" списка.
   // Чтение списка происходит с "хвоста", а "голова" нужна для
   // добовления нового узла в списке.
-  Node *_head{nullptr};  // "голова"
-  Node *_tail{nullptr};  // "хвост"
-  size_type _size{0};    // количество узлов в списке
+  Node *_head{nullptr}; // "голова"
+  Node *_tail{nullptr}; // "хвост"
+  size_type _size{0};   // количество узлов в списке
 
- public:
-  ForwardList() : _allocator(allocator_type{}) {}
+public:
+  ForwardList() : _allocator() {}
 
   // Процесс уничтожения списка происходит с "хвоста". Постепенно проходя
   // каждый узел, вызывается деструктор значения и освобождение памяти этого
@@ -83,8 +82,10 @@ class ForwardList {
     traits::construct(_allocator, &(node->value), value);
     node->next = nullptr;
 
-    if (_tail == nullptr) _tail = node;
-    if (_head != nullptr) _head->next = node;
+    if (_tail == nullptr)
+      _tail = node;
+    if (_head != nullptr)
+      _head->next = node;
 
     _head = node;
     _size++;
@@ -93,12 +94,11 @@ class ForwardList {
 
 // Реализация концепта итератора в C++
 // http://en.cppreference.com/w/cpp/concept/Iterator
-template <typename T, typename Alloc>
-class ForwardList<T, Alloc>::Iterator {
+template <typename T, typename Alloc> class ForwardList<T, Alloc>::Iterator {
   using node_type = ForwardList<T, Alloc>::Node;
   node_type *_node;
 
- public:
+public:
   // Типы для iterator_traits
   using value_type = T;
   using pointer = T *;
@@ -135,7 +135,7 @@ class ForwardList<T, Alloc>::ConstIterator {
   using node_type = ForwardList<T, Alloc>::Node;
   node_type *_node;
 
- public:
+public:
   using value_type = T;
   using pointer = const T *;
   using reference = const T &;

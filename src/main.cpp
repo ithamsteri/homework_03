@@ -3,7 +3,7 @@
 //
 
 // Overload ::operator new and ::operator delete
-//#include "Malloc.h"
+#include "Malloc.h"
 
 #include "ChunkAllocator.h"
 #include "ForwardList.h"

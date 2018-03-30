@@ -12,9 +12,9 @@
 
 template <typename T, size_t Size> struct ChunkAllocator {
 private:
-  using uchar_ptr = unsigned char *;
+  using uchar = unsigned char;
   struct NavigationBlock {
-    uchar_ptr prev;
+    std::unique_ptr<uchar> prev;
   };
   using block_type = NavigationBlock;
   constexpr static size_t firstElement =
@@ -30,11 +30,16 @@ public:
   };
 
   ChunkAllocator() : _currentChunk{nullptr}, _offset{0}, _size{Size} {}
+
+  template <typename U>
+  ChunkAllocator(const ChunkAllocator<U, Size> &rhs) : _currentChunk{nullptr} {}
+
   ~ChunkAllocator() {
     while (_currentChunk != nullptr) {
-      uchar_ptr nextChunk = ((block_type *)_currentChunk)->prev;
-      free(_currentChunk);
-      _currentChunk = nextChunk;
+      std::unique_ptr<uchar> nextChunk(
+          std::move(reinterpret_cast<block_type *>(_currentChunk.get())->prev));
+      _currentChunk.release();
+      _currentChunk = std::move(nextChunk);
     }
   }
 
@@ -46,27 +51,28 @@ public:
       _size *= 2;
     }
 
-    void *ptr = _currentChunk + _offset;
+    void *ptr = _currentChunk.get() + _offset;
     _offset += n * sizeof(T);
 
     return static_cast<pointer>(ptr);
   }
 
   void deallocate(pointer p, size_t n) {
-    if (reinterpret_cast<pointer>(_currentChunk + _offset - n * sizeof(T)) == p)
+    if (reinterpret_cast<pointer>(_currentChunk.get() + _offset -
+                                  n * sizeof(T)) == p)
       _offset -= n * sizeof(T);
   }
 
 private:
-  uchar_ptr _currentChunk;
+  std::unique_ptr<uchar> _currentChunk;
   size_t _offset;
   size_t _size;
 
   void addChunk(size_type n) {
-    auto oldChunk = _currentChunk;
-    _currentChunk =
-        static_cast<uchar_ptr>(malloc(firstElement + sizeof(T) * n));
-    new (_currentChunk) block_type{oldChunk};
+    std::unique_ptr<uchar> oldChunk(_currentChunk.get());
+    _currentChunk.reset(
+        static_cast<uchar *>(::operator new(firstElement + sizeof(T) * n)));
+    new (_currentChunk.get()) block_type{std::move(oldChunk)};
     _offset = firstElement;
   }
 };
