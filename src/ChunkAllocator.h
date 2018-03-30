@@ -11,8 +11,7 @@
 #include <iostream>
 #include <memory>
 
-template <typename T, size_t Size> struct ChunkAllocator {
-private:
+template <typename T, size_t Size> class ChunkAllocator {
   using uchar = unsigned char;
   using uchar_ptr = uchar *;
 
