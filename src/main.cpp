@@ -12,7 +12,8 @@
 
 const static int container_size = 10;
 
-constexpr unsigned factorial(unsigned n) {
+template <typename T>
+constexpr T factorial(T n) {
   return (n == 0) ? 1 : n * factorial(n - 1);
 }
 
