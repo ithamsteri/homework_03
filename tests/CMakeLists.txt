@@ -2,7 +2,7 @@ if (BUILD_TESTING)
     find_package (Boost COMPONENTS unit_test_framework REQUIRED)
 
     add_executable(allocator_test
-        ChunkPool.test.cpp
+        ChunkAllocator.test.cpp
     )
     add_executable(forwardlist_test
         ForwardList.test.cpp

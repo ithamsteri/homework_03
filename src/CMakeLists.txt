@@ -1,7 +1,7 @@
 # make executable file for application
 add_executable(allocator
         main.cpp
-        ChunkPool.h
+        ChunkAllocator.h
         ForwardList.h
         Malloc.h
 )
