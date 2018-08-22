@@ -38,20 +38,24 @@ class ForwardList {
         using pointer = T *;
         using iterator_category = std::forward_iterator_tag;
         using difference_type = std::ptrdiff_t;
+
         iterator(Node *ptr) : ptr_(ptr) {}
-        self_type operator++(int) {
-            self_type i = *this;
-            ptr_ = ptr_->next.get();
-            return i;
-        }
-        self_type operator++() {
+
+        self_type &operator++() {
             ptr_ = ptr_->next.get();
             return *this;
         }
+
+        self_type operator++(int) {
+            self_type old_iter = *this;
+            ++(*this);
+            return old_iter;
+        }
+
         reference operator*() { return ptr_->value; }
         pointer operator->() { return &(ptr_->value); }
         bool operator==(const self_type &rhs) { return ptr_ == rhs.ptr_; }
-        bool operator!=(const self_type &rhs) { return ptr_ != rhs.ptr_; }
+        bool operator!=(const self_type &rhs) { return !(*this == rhs); }
 
       private:
         Node *ptr_;
@@ -60,7 +64,6 @@ class ForwardList {
     using value_type = T;
     using reference = T &;
     using size_type = std::size_t;
-    using iterator = iterator;
 
     using allocator_type = typename std::allocator_traits<Alloc>::template rebind_alloc<Node>;
     using traits = std::allocator_traits<allocator_type>;

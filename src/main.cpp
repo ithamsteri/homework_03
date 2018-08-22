@@ -2,9 +2,6 @@
 // File: main.cpp
 //
 
-// Overload ::operator new and ::operator delete
-#include "Malloc.h"
-
 #include "ChunkAllocator.h"
 #include "ForwardList.h"
 #include <algorithm>
@@ -32,8 +29,9 @@ int main(int, char *[]) {
     for (int i = 0; i < container_size; ++i)
         cmap[i] = factorial(i);
 
-    std::for_each(cmap.begin(), cmap.end(),
-                  [](const auto &p) { std::cout << p.first << ' ' << p.second << std::endl; });
+    for (const auto &p : cmap) {
+        std::cout << p.first << ' ' << p.second << '\n';
+    }
 
     // Section 02: ForwardList and allocators
     ForwardList<int> slist;
@@ -44,7 +42,9 @@ int main(int, char *[]) {
     for (int i = 0; i < container_size; ++i)
         flist.push_front(i);
 
-    std::for_each(flist.begin(), flist.end(), [](const auto &n) { std::cout << n << std::endl; });
+    for (const auto &n : flist) {
+        std::cout << n << '\n';
+    }
 
     return 0;
 }

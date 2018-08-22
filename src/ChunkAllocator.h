@@ -6,8 +6,10 @@
 #ifndef CHUNK_ALLOCATOR_H
 #define CHUNK_ALLOCATOR_H
 
+// Overload ::operator new and ::operator delete
+#include "Malloc.h"
+
 #include <cstddef>
-#include <forward_list>
 #include <memory>
 
 template <typename T, size_t Size>
